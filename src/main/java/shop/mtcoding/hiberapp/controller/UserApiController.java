@@ -2,6 +2,8 @@ package shop.mtcoding.hiberapp.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,14 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import shop.mtcoding.hiberapp.model.User;
-import shop.mtcoding.hiberapp.model.UserRepository;
+import shop.mtcoding.hiberapp.model.UserJpaRepository;
 
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @RestController
 public class UserApiController {
 
-    private final UserRepository userRepository;
+    // private final UserRepository userRepository;
+    private final UserJpaRepository userRepository;
 
     @PostMapping("/users")
     public ResponseEntity<?> addUser(User user) {
@@ -32,18 +35,18 @@ public class UserApiController {
 
     @PutMapping("/users/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, User user) {
-        User userPS = userRepository.findById(id);
+        User userPS = userRepository.findById(id).get();
         if (userPS == null) {
             return new ResponseEntity<>("해당 유저가 없습니다.", HttpStatus.BAD_REQUEST);
         }
         userPS.update(user.getPassword(), user.getEmail());
-        User updateuserPS = userRepository.update(userPS);
+        User updateuserPS = userRepository.save(userPS);
         return new ResponseEntity<>(updateuserPS, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        User userPS = userRepository.findById(id);
+        User userPS = userRepository.findById(id).get();
         if (userPS == null) {
             return new ResponseEntity<>("해당 유저가 없습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -53,13 +56,13 @@ public class UserApiController {
 
     @GetMapping("/users")
     public ResponseEntity<?> findUsers(@RequestParam(defaultValue = "0") int page) {
-        List<User> userListPs = userRepository.findAll(page, 2);
+        Page<User> userListPs = userRepository.findAll(PageRequest.of(page, 2));
         return new ResponseEntity<>(userListPs, HttpStatus.OK);
     }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<?> findUserOne(@PathVariable Long id) {
-        User userPS = userRepository.findById(id);
+        User userPS = userRepository.findById(id).get();
         if (userPS == null) {
             return new ResponseEntity<>("해당 유저가 없습니다.", HttpStatus.BAD_REQUEST);
         }

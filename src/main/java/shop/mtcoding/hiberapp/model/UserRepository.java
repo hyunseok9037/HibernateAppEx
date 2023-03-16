@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -13,15 +14,18 @@ import lombok.RequiredArgsConstructor;
 public class UserRepository {
     private final EntityManager em;
 
+    @Transactional
     public User save(User user) {
         em.persist(user);
         return user;
     }
 
+    @Transactional
     public User update(User user) {
         return em.merge(user);
     }
 
+    @Transactional
     public void delete(User user) {
         em.remove(user);
     }
